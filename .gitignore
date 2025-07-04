@@ -8,6 +8,10 @@ wheels/
 
 # Virtual environments
 .venv
-.env
 
+# MacOS
 .DS_Store
+
+# Private Files
+.env
+alerts.yaml

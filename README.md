@@ -1,6 +1,86 @@
 # Asset Invest Alerts
 
+Asset Invest Alerts is a Python tool that monitors asset prices and sends you notifications when your custom alert conditions are met. Configure your alerts in a YAML file, and let the script notify you when your targets are hit.
+
+## Features
+
+- Monitor prices of stocks, cryptocurrencies, or other assets.
+- Define custom alert conditions in a YAML file.
+- Receive notifications when your alert conditions are met.
+- Easily schedule the script to run automatically (e.g., daily) using `cron`.
+
+## Getting Started
+
+### 1. Install Dependencies
+
+This project uses [uv](https://github.com/astral-sh/uv) for dependency management. To install dependencies, run:
+
 ```sh
 uv sync
+```
+
+### 2. Configure Your Alerts
+
+Copy the example alerts file and edit it to define your own alerts:
+
+```sh
+cp alerts.example.yaml alerts.yaml
+```
+
+Edit `alerts.yaml` to specify the assets and alert conditions you want to monitor. Example:
+
+```yaml
+- name: Gold Buy
+  asset: gold
+  price: 3200
+  alert_type: price_below
+- name: Bitcoin Sell
+  asset: bitcoin
+  price: 150000
+  alert_type: price_above
+```
+
+
+Set the required API keys in the `.env` file.
+
+```sh
+cp .env.example .env 
+# and set goldapi.io API KEY in .env file
+```
+
+### 3. Run the Script
+
+To check your alerts and receive notifications, run:
+
+```sh
 uv run main.py
 ```
+
+## Automate with Cron
+
+To have the script run automatically every day (e.g., at 8:00 AM), add a crontab entry:
+
+1. Find the full path to your Python executable (if needed):
+
+   ```sh
+   which python3
+   ```
+
+2. Edit your crontab:
+
+   ```sh
+   crontab -e
+   ```
+
+3. Add the following line to run the script every day at 8:00 AM (adjust the path as needed):
+
+   ```
+   0 8 * * * cd /full/path/to/repo/asset-price-alert && uv run main.py
+   ```
+
+   - This assumes your project is located at `/full/path/to/repo/asset-price-alert`.
+   - Make sure your `alerts.yaml` is configured and present in the project directory.
+
+## Notifications
+
+The script will notify you (via your configured method) if any of your alert conditions are met. Check the `lib/notify.py` file to see or customize how notifications are sent (e.g., email, desktop, etc.).
