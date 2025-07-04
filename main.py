@@ -1,19 +1,20 @@
 from providers import make_gapi_request
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
 def main():
-    print("Hello from asset-price-alert!")
+    gold_price = get_gold_price()
+    print('Gold price: ', gold_price)
 
 
 def get_gold_price():
-    return make_gapi_request()
-
+    try:
+        return make_gapi_request(os.getenv("GOLDAPI_IO_API_KEY"))
+    except Exception as e:
+        print(f"Error fetching gold price: {e}")
+        return None
 
 if __name__ == "__main__":
     main()
-    gold_price = get_gold_price()
-    if gold_price:
-        print(f"Current Gold Price: {gold_price}")
-    else:
-        print("Could not fetch gold price - please check your internet connection")
-
