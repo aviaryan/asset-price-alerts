@@ -6,6 +6,12 @@ from typing import Optional, Dict, Any
 
 load_dotenv()
 
+price_cache = {
+    'gold': None,
+    'bitcoin': None,
+    'sp500': None,
+}
+
 def get_asset_price(asset_type: str) -> Optional[float]:
     """
     Get the current price for a specified asset type.
@@ -17,16 +23,22 @@ def get_asset_price(asset_type: str) -> Optional[float]:
         Optional[float]: Current asset price in USD, or None if error
     """
     asset_type = asset_type.lower()
-    
+
+    if price_cache[asset_type] is not None:
+        # don't send multiple requests to the same asset type
+        # this is to prevent us from getting rate limited by the API
+        return price_cache[asset_type]
+
     if asset_type == 'gold':
-        return get_gold_price()
+        price_cache[asset_type] = get_gold_price()
     elif asset_type in ['bitcoin', 'btc']:
-        return get_bitcoin_price()
+        price_cache[asset_type] = get_bitcoin_price()
     elif asset_type in ['sp500', 's&p500', 'spx']:
-        return get_sp500_price()
+        price_cache[asset_type] = get_sp500_price()
     else:
         print(f"Warning: Unsupported asset type '{asset_type}'")
         return None
+    return price_cache[asset_type]
 
 
 def get_gold_price() -> Optional[float]:

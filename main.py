@@ -1,4 +1,3 @@
-import os
 from dotenv import load_dotenv
 # own libraries
 from lib.providers import get_asset_price
@@ -31,6 +30,11 @@ def main():
 
         if current_price is None:
             print(f"Failed to fetch {asset_type} price. Skipping {len(asset_alerts)} alert(s).")
+            show_notification(
+                message=f"Failed to fetch {asset_type} price. Skipping {len(asset_alerts)} alert(s).",
+                title="Asset Price Alert",
+                subtitle=f"Please check the code for {asset_type}"
+            )
             continue
 
         print(f'Current {asset_type} price: ${current_price:.2f}')

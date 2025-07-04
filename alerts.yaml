@@ -6,7 +6,11 @@
   asset: gold
   price: 3500
   alert_type: price_above
-- name: Bitcoin Watch
+- name: Bitcoin Sell Some
+  asset: bitcoin
+  price: 120000
+  alert_type: price_above
+- name: Bitcoin Buy
   asset: bitcoin
   price: 100000
-  alert_type: price_above
+  alert_type: price_below
