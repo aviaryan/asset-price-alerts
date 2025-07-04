@@ -1,5 +1,4 @@
 import yaml
-import os
 from typing import List, Dict, Any
 from collections import defaultdict
 
@@ -39,9 +38,12 @@ def group_alerts_by_asset(alerts: List[Dict[str, Any]]) -> Dict[str, List[Dict[s
     grouped = defaultdict(list)
     
     for alert in alerts:
-        asset = alert.get('asset', 'gold')  # Default to gold for backward compatibility
+        asset = alert.get('asset', None)
+        if asset is None:
+            print(f"Warning: Alert '{alert.get('name', 'Unknown')}' has no asset type")
+            continue
         grouped[asset].append(alert)
-    
+
     return dict(grouped)
 
 

@@ -27,12 +27,12 @@ def main():
         print(f"\n--- {asset_type.upper()} ---")
         
         # Get current price for this asset
-        current_price = get_asset_price(asset_type, os.getenv("GOLDAPI_IO_API_KEY"))
-        
+        current_price = get_asset_price(asset_type)
+
         if current_price is None:
             print(f"Failed to fetch {asset_type} price. Skipping {len(asset_alerts)} alert(s).")
             continue
-        
+
         print(f'Current {asset_type} price: ${current_price:.2f}')
         
         # Check which alerts are triggered for this asset
@@ -67,12 +67,6 @@ def main():
     print(f"Total alerts triggered: {total_triggered}")
     if total_triggered == 0:
         print("All monitored assets are within normal ranges.")
-
-
-# Legacy function for backward compatibility
-def get_gold_price():
-    """Legacy function - use get_asset_price('gold') instead"""
-    return get_asset_price('gold', os.getenv("GOLDAPI_IO_API_KEY"))
 
 if __name__ == "__main__":
     main()

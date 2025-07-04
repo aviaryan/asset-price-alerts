@@ -1,16 +1,17 @@
 import requests
 import json
 import os
+from dotenv import load_dotenv
 from typing import Optional, Dict, Any
 
+load_dotenv()
 
-def get_asset_price(asset_type: str, api_key: str = None) -> Optional[float]:
+def get_asset_price(asset_type: str) -> Optional[float]:
     """
     Get the current price for a specified asset type.
     
     Args:
         asset_type (str): Type of asset ('gold', 'bitcoin', 'sp500', etc.)
-        api_key (str): API key for the provider (if required)
         
     Returns:
         Optional[float]: Current asset price in USD, or None if error
@@ -18,7 +19,7 @@ def get_asset_price(asset_type: str, api_key: str = None) -> Optional[float]:
     asset_type = asset_type.lower()
     
     if asset_type == 'gold':
-        return get_gold_price(api_key)
+        return get_gold_price()
     elif asset_type in ['bitcoin', 'btc']:
         return get_bitcoin_price()
     elif asset_type in ['sp500', 's&p500', 'spx']:
@@ -28,23 +29,20 @@ def get_asset_price(asset_type: str, api_key: str = None) -> Optional[float]:
         return None
 
 
-def get_gold_price(api_key: str = None) -> Optional[float]:
+def get_gold_price() -> Optional[float]:
     """
     Get the current gold price from goldapi.io
-    
-    Args:
-        api_key (str): goldapi.io API key
+    URL - https://www.goldapi.io/dashboard
         
     Returns:
         Optional[float]: Gold price in USD per ounce, or None if error
     """
-    if not api_key:
-        api_key = os.getenv("GOLDAPI_IO_API_KEY")
+    api_key = os.getenv("GOLDAPI_IO_API_KEY")
     
     if not api_key:
         print("Error: GOLDAPI_IO_API_KEY not found in environment variables")
         return None
-    
+
     return make_gapi_request(api_key)
 
 
@@ -119,9 +117,3 @@ def make_gapi_request(api_key: str) -> Optional[float]:
     except json.JSONDecodeError as e:
         print(f"Error parsing gold price response: {e}")
         return None
-
-
-# Legacy function for backward compatibility
-def get_gold_price_legacy():
-    """Legacy function - use get_asset_price('gold') instead"""
-    return get_gold_price()
