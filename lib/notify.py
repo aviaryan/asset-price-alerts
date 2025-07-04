@@ -1,5 +1,4 @@
 import subprocess
-import shlex
 
 
 def show_notification(message, title="Notification", subtitle="", sound_name="default"):
@@ -18,12 +17,6 @@ def show_notification(message, title="Notification", subtitle="", sound_name="de
         bool: True if notification was sent successfully, False otherwise
     """
     try:
-        # Convert all arguments to strings to ensure shlex.quote works
-        message = str(message)
-        title = str(title) if title else ""
-        subtitle = str(subtitle) if subtitle else ""
-        sound_name = str(sound_name) if sound_name else ""
-        
         # Build AppleScript command with proper syntax
         # Escape double quotes in the strings for AppleScript
         escaped_message = message.replace('"', '\\"')

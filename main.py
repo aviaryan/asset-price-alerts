@@ -1,8 +1,8 @@
 import os
 from dotenv import load_dotenv
 # own libraries
-from providers import make_gapi_request
-from lib import show_notification
+from lib.providers import make_gapi_request
+from lib.notify import show_notification
 
 load_dotenv()
 
