@@ -96,17 +96,18 @@ def get_sp500_price() -> Optional[float]:
     return None
 
 
-def make_gapi_request(api_key: str) -> Optional[float]:
+def make_gapi_request(api_key: str, asset: str = "XAU") -> Optional[float]:
     """
     Make a request to the goldapi.io API to get the current gold price
     
     Args:
         api_key (str): goldapi.io API key
-        
+        asset (str): Asset symbol (default: "XAU" for gold)
+
     Returns:
         Optional[float]: Gold price in USD per ounce, or None if error
     """
-    symbol = "XAU"
+    symbol = asset.upper()
     curr = "USD"
     date = ""
 

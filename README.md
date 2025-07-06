@@ -2,9 +2,11 @@
 
 Asset Invest Alerts is a Python tool that monitors asset prices and sends you notifications when your custom alert conditions are met. Configure your alerts in a YAML file, and let the script notify you when your targets are hit.
 
+> This is an alternative to using **TradingView premium** for long-term investment alerts.
+
 ## Features
 
-- Monitor prices of stocks, cryptocurrencies, or other assets.
+- Monitor prices of stocks, cryptocurrencies, gold or other assets.
 - Define custom alert conditions in a YAML file.
 - Receive notifications when your alert conditions are met.
 - Easily schedule the script to run automatically (e.g., daily) using `cron`.
