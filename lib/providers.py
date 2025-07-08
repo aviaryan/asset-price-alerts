@@ -23,39 +23,37 @@ def get_asset_price(asset_type: str) -> Optional[float]:
     Returns:
         Optional[float]: Current asset price in USD, or None if error
     """
+    # Asset aliases mapping to canonical names
+    asset_aliases = {
+        'gold': 'gold',
+        'bitcoin': 'bitcoin', 'btc': 'bitcoin',
+        'sp500': 'sp500', 's&p500': 'sp500', 'spx': 'sp500',
+        'nifty': 'nifty', 'nifty50': 'nifty', 'nifty 50': 'nifty'
+    }
+
+    # Asset fetch functions mapping
+    asset_fetchers = {
+        'gold': get_gold_price,
+        'bitcoin': get_bitcoin_price,
+        'sp500': get_sp500_price,
+        'nifty': get_nifty_price
+    }
+
     asset_type = asset_type.lower()
-    
-    # Normalize asset types to canonical names for cache consistency
-    cache_key = asset_type
-    if asset_type in ['nifty', 'nifty50', 'nifty 50']:
-        cache_key = 'nifty'
-    elif asset_type in ['bitcoin', 'btc']:
-        cache_key = 'bitcoin'
-    elif asset_type in ['sp500', 's&p500', 'spx']:
-        cache_key = 'sp500'
-    elif asset_type == 'gold':
-        cache_key = 'gold'
+    canonical_name = asset_aliases.get(asset_type)
 
-    if cache_key in price_cache and price_cache[cache_key] is not None:
-        # don't send multiple requests to the same asset type
-        # this is to prevent us from getting rate limited by the API
-        return price_cache[cache_key]
-
-    if asset_type == 'gold':
-        price_cache['gold'] = get_gold_price()
-        return price_cache['gold']
-    elif asset_type in ['bitcoin', 'btc']:
-        price_cache['bitcoin'] = get_bitcoin_price()
-        return price_cache['bitcoin']
-    elif asset_type in ['sp500', 's&p500', 'spx']:
-        price_cache['sp500'] = get_sp500_price()
-        return price_cache['sp500']
-    elif asset_type in ['nifty', 'nifty50', 'nifty 50']:
-        price_cache['nifty'] = get_nifty_price()
-        return price_cache['nifty']
-    else:
+    if not canonical_name:
         print(f"Warning: Unsupported asset type '{asset_type}'")
         return None
+
+    # Check cache first
+    if canonical_name in price_cache and price_cache[canonical_name] is not None:
+        return price_cache[canonical_name]
+
+    # Fetch and cache the price
+    fetch_function = asset_fetchers[canonical_name]
+    price_cache[canonical_name] = fetch_function()
+    return price_cache[canonical_name]
 
 
 def get_gold_price() -> Optional[float]:
@@ -156,8 +154,6 @@ def get_nifty_price() -> Optional[float]:
     except (KeyError, json.JSONDecodeError, ValueError) as e:
         print(f"Error parsing Nifty 50 price response: {e}")
         return None
-
-
 
 
 def make_gapi_request(api_key: str, asset: str = "XAU") -> Optional[float]:
