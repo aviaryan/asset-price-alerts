@@ -14,3 +14,11 @@
   asset: bitcoin
   price: 100000
   alert_type: price_below
+- name: Nifty 50 High Alert
+  asset: nifty
+  price: 26000
+  alert_type: price_above
+- name: Nifty 50 Support Level
+  asset: nifty50
+  price: 24000
+  alert_type: price_below
