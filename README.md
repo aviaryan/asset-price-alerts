@@ -16,6 +16,7 @@ Asset Invest Alerts is a Python tool that monitors asset prices and sends you no
 - **Gold** - Current gold prices in USD per ounce
 - **Bitcoin** - Cryptocurrency prices in USD
 - **Nifty 50** - Indian stock market index (NSE) in INR
+- **USD/INR** - Exchange rate (INR per USD)
 - **S&P 500** - US stock market index (placeholder - needs implementation)
 
 ## Getting Started
@@ -61,6 +62,7 @@ Edit `alerts.yaml` to specify the assets and alert conditions you want to monito
 - `gold` - Gold prices
 - `bitcoin` or `btc` - Bitcoin prices
 - `nifty`, `nifty50`, or `nifty 50` - Nifty 50 index
+- `usd_inr`, `usd/inr`, `usdinr`, or `usd-inr` - USD/INR rate (INR per USD)
 
 Set the required API keys in the `.env` file.
 
@@ -69,7 +71,7 @@ cp .env.example .env
 # and set goldapi.io API KEY in .env file
 ```
 
-**Note:** Nifty 50 prices are fetched from Yahoo Finance API and don't require additional API keys.
+**Note:** Nifty 50 and USD/INR prices are fetched from Yahoo Finance API and don't require additional API keys.
 
 ### 3. Run the Script
 

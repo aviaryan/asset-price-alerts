@@ -22,3 +22,11 @@
   asset: nifty50
   price: 24000
   alert_type: price_below
+- name: INR Weakness Alert
+  asset: usd_inr
+  price: 86.0
+  alert_type: price_above
+- name: INR Strength Alert
+  asset: usd/inr
+  price: 82.0
+  alert_type: price_below

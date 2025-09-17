@@ -11,6 +11,7 @@ price_cache = {
     'bitcoin': None,
     'sp500': None,
     'nifty': None,
+    'usd_inr': None,
 }
 
 def get_asset_price(asset_type: str) -> Optional[float]:
@@ -28,7 +29,8 @@ def get_asset_price(asset_type: str) -> Optional[float]:
         'gold': 'gold',
         'bitcoin': 'bitcoin', 'btc': 'bitcoin',
         'sp500': 'sp500', 's&p500': 'sp500', 'spx': 'sp500',
-        'nifty': 'nifty', 'nifty50': 'nifty', 'nifty 50': 'nifty'
+        'nifty': 'nifty', 'nifty50': 'nifty', 'nifty 50': 'nifty',
+        'usd_inr': 'usd_inr', 'usd/inr': 'usd_inr', 'usdinr': 'usd_inr', 'usd-inr': 'usd_inr'
     }
 
     # Asset fetch functions mapping
@@ -36,7 +38,8 @@ def get_asset_price(asset_type: str) -> Optional[float]:
         'gold': get_gold_price,
         'bitcoin': get_bitcoin_price,
         'sp500': get_sp500_price,
-        'nifty': get_nifty_price
+        'nifty': get_nifty_price,
+        'usd_inr': get_usd_inr_price
     }
 
     asset_type = asset_type.lower()
@@ -155,6 +158,47 @@ def get_nifty_price() -> Optional[float]:
         print(f"Error parsing Nifty 50 price response: {e}")
         return None
 
+
+def get_usd_inr_price() -> Optional[float]:
+    """
+    Get the current USD/INR exchange rate from Yahoo Finance API.
+    Returns INR per 1 USD.
+
+    Returns:
+        Optional[float]: USD/INR rate (INR per USD), or None if error
+    """
+    try:
+        url = "https://query1.finance.yahoo.com/v8/finance/chart/USDINR=X"
+
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+
+        data = response.json()
+
+        if 'chart' in data and 'result' in data['chart'] and len(data['chart']['result']) > 0:
+            result = data['chart']['result'][0]
+            if 'meta' in result and 'regularMarketPrice' in result['meta']:
+                return float(result['meta']['regularMarketPrice'])
+            elif 'indicators' in result and 'quote' in result['indicators']:
+                quotes = result['indicators']['quote'][0]
+                if 'close' in quotes and quotes['close']:
+                    close_prices = [p for p in quotes['close'] if p is not None]
+                    if close_prices:
+                        return float(close_prices[-1])
+
+        print("Error: Unable to parse USD/INR rate from Yahoo Finance response")
+        return None
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching USD/INR rate: {e}")
+        return None
+    except (KeyError, json.JSONDecodeError, ValueError) as e:
+        print(f"Error parsing USD/INR response: {e}")
+        return None
 
 def make_gapi_request(api_key: str, asset: str = "XAU") -> Optional[float]:
     """
