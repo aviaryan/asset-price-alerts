@@ -1,4 +1,5 @@
 import logging
+import os
 from dotenv import load_dotenv
 # own libraries
 from lib.providers import get_asset_price
@@ -9,6 +10,8 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
+CRON_MODE = os.getenv("CRON_MODE") == "1"
+
 def main():
     # Load alert configurations
     alerts = load_alerts("alerts.yaml")
@@ -16,17 +19,21 @@ def main():
         logger.error("No alerts configured or error loading alerts.yaml")
         return
 
-    print(f"Loaded {len(alerts)} alert(s)")
+    logger.info("Loaded %d alert(s)", len(alerts))
 
     # Group alerts by asset type
     alerts_by_asset = group_alerts_by_asset(alerts)
-    print(f"Monitoring {len(alerts_by_asset)} asset type(s): {', '.join(alerts_by_asset.keys())}")
+    logger.info(
+        "Monitoring %d asset type(s): %s",
+        len(alerts_by_asset),
+        ", ".join(alerts_by_asset.keys()),
+    )
     
     total_triggered = 0
     
     # Process each asset type
     for asset_type, asset_alerts in alerts_by_asset.items():
-        print(f"\n--- {asset_type.upper()} ---")
+        logger.info("\n--- %s ---", asset_type.upper())
         
         # Get current price for this asset
         current_price = get_asset_price(asset_type)
@@ -40,19 +47,19 @@ def main():
             )
             continue
 
-        print(f'Current {asset_type} price: ${current_price:.2f}')
+        logger.info("Current %s price: $%.2f", asset_type, current_price)
         
         # Check which alerts are triggered for this asset
         triggered_alerts = get_triggered_alerts(current_price, asset_alerts)
         
         if triggered_alerts:
-            print(f"{len(triggered_alerts)} {asset_type} alert(s) triggered!")
+            logger.info("%d %s alert(s) triggered!", len(triggered_alerts), asset_type)
             total_triggered += len(triggered_alerts)
             
             # Show notifications for each triggered alert
             for alert in triggered_alerts:
                 alert_message = format_alert_message(alert, current_price)
-                print(f"Alert: {alert_message}")
+                logger.info("Alert: %s", alert_message)
                 
                 # Show desktop notification
                 show_notification(
@@ -61,20 +68,29 @@ def main():
                     subtitle=f"{alert.get('name', 'Asset')} Alert Triggered"
                 )
         else:
-            print(f"No {asset_type} alerts triggered.")
+            logger.info("No %s alerts triggered.", asset_type)
             # Show a summary of current status for this asset
             for alert in asset_alerts:
                 name = alert.get('name', 'Asset')
                 threshold = alert.get('price')
                 alert_type = alert.get('alert_type', 'price_below')
-                print(f"  {name}: ${current_price:.2f} (watching for {alert_type} ${threshold})")
+                logger.info(
+                    "  %s: $%.2f (watching for %s $%s)",
+                    name,
+                    current_price,
+                    alert_type,
+                    threshold,
+                )
     
     # Summary
-    print(f"\n=== SUMMARY ===")
-    print(f"Total alerts triggered: {total_triggered}")
+    logger.info("\n=== SUMMARY ===")
+    logger.info("Total alerts triggered: %d", total_triggered)
     if total_triggered == 0:
-        print("All monitored assets are within normal ranges.")
+        logger.info("All monitored assets are within normal ranges.")
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+    logging.basicConfig(
+        level=logging.WARNING if CRON_MODE else logging.INFO,
+        format="%(levelname)s: %(message)s",
+    )
     main()
