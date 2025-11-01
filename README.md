@@ -106,7 +106,7 @@ To have the script run automatically every day (e.g., at 8:00 AM), add a crontab
 3. Add the following line to run the script every day at 11:00 AM (adjust the path and time as needed):
 
    ```
-   CRON_MODE=1 0 11 * * * cd /full/path/to/repo/asset-price-alert && /full/path/to/uv run main.py
+   0 11 * * * cd /full/path/to/repo/asset-price-alert && CRON_MODE=1 /full/path/to/uv run main.py
    ```
 
    - This assumes your project is located at `/full/path/to/repo/asset-price-alert`.
