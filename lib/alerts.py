@@ -1,6 +1,10 @@
+import logging
 import yaml
 from typing import List, Dict, Any
 from collections import defaultdict
+
+
+logger = logging.getLogger(__name__)
 
 
 def load_alerts(file_path: str = "alerts.yaml") -> List[Dict[str, Any]]:
@@ -18,10 +22,10 @@ def load_alerts(file_path: str = "alerts.yaml") -> List[Dict[str, Any]]:
             alerts = yaml.safe_load(file)
             return alerts if alerts else []
     except FileNotFoundError:
-        print(f"Error: Alert file '{file_path}' not found.")
+        logger.error("Alert file '%s' not found.", file_path)
         return []
     except yaml.YAMLError as e:
-        print(f"Error parsing YAML file: {e}")
+        logger.error("Error parsing YAML file: %s", e)
         return []
 
 
@@ -40,7 +44,7 @@ def group_alerts_by_asset(alerts: List[Dict[str, Any]]) -> Dict[str, List[Dict[s
     for alert in alerts:
         asset = alert.get('asset', None)
         if asset is None:
-            print(f"Warning: Alert '{alert.get('name', 'Unknown')}' has no asset type")
+            logger.warning("Alert '%s' has no asset type", alert.get('name', 'Unknown'))
             continue
         grouped[asset].append(alert)
 
@@ -65,7 +69,7 @@ def check_alert_condition(current_price: float, alert: Dict[str, Any]) -> bool:
     alert_type = alert.get('alert_type', 'price_below')
     
     if threshold_price is None:
-        print(f"Warning: Alert '{alert.get('name', 'Unknown')}' has no price threshold")
+        logger.warning("Alert '%s' has no price threshold", alert.get('name', 'Unknown'))
         return False
     
     if alert_type == 'price_below':
@@ -76,7 +80,7 @@ def check_alert_condition(current_price: float, alert: Dict[str, Any]) -> bool:
         # Allow for small floating point differences
         return abs(current_price - threshold_price) < 0.01
     else:
-        print(f"Warning: Unknown alert type '{alert_type}' for alert '{alert.get('name', 'Unknown')}'")
+        logger.warning("Unknown alert type '%s' for alert '%s'", alert_type, alert.get('name', 'Unknown'))
         return False
 
 

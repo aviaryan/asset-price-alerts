@@ -1,8 +1,11 @@
+import logging
 from dotenv import load_dotenv
 # own libraries
 from lib.providers import get_asset_price
 from lib.notify import show_notification
 from lib.alerts import load_alerts, group_alerts_by_asset, get_triggered_alerts, format_alert_message
+
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -10,7 +13,7 @@ def main():
     # Load alert configurations
     alerts = load_alerts("alerts.yaml")
     if not alerts:
-        print("No alerts configured or error loading alerts.yaml")
+        logger.error("No alerts configured or error loading alerts.yaml")
         return
 
     print(f"Loaded {len(alerts)} alert(s)")
@@ -29,7 +32,7 @@ def main():
         current_price = get_asset_price(asset_type)
 
         if current_price is None:
-            print(f"Failed to fetch {asset_type} price. Skipping {len(asset_alerts)} alert(s).")
+            logger.error("Failed to fetch %s price. Skipping %d alert(s).", asset_type, len(asset_alerts))
             show_notification(
                 message=f"Failed to fetch {asset_type} price. Skipping {len(asset_alerts)} alert(s).",
                 title="Asset Price Alert",
@@ -73,4 +76,5 @@ def main():
         print("All monitored assets are within normal ranges.")
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     main()

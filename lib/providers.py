@@ -1,3 +1,4 @@
+import logging
 import requests
 import json
 import os
@@ -5,6 +6,8 @@ from dotenv import load_dotenv
 from typing import Optional, Dict, Any
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 price_cache = {
     'gold': None,
@@ -46,7 +49,7 @@ def get_asset_price(asset_type: str) -> Optional[float]:
     canonical_name = asset_aliases.get(asset_type)
 
     if not canonical_name:
-        print(f"Warning: Unsupported asset type '{asset_type}'")
+        logger.warning("Unsupported asset type '%s'", asset_type)
         return None
 
     # Check cache first
@@ -70,7 +73,7 @@ def get_gold_price() -> Optional[float]:
     api_key = os.getenv("GOLDAPI_IO_API_KEY")
     
     if not api_key:
-        print("Error: GOLDAPI_IO_API_KEY not found in environment variables")
+        logger.error("GOLDAPI_IO_API_KEY not found in environment variables")
         return None
 
     return make_gapi_request(api_key)
@@ -93,10 +96,10 @@ def get_bitcoin_price() -> Optional[float]:
         return data['bitcoin']['usd']
         
     except requests.exceptions.RequestException as e:
-        print(f"Error fetching Bitcoin price: {e}")
+        logger.error("Error fetching Bitcoin price: %s", e)
         return None
     except (KeyError, json.JSONDecodeError) as e:
-        print(f"Error parsing Bitcoin price response: {e}")
+        logger.error("Error parsing Bitcoin price response: %s", e)
         return None
 
 
@@ -109,8 +112,8 @@ def get_sp500_price() -> Optional[float]:
         Optional[float]: S&P 500 index value, or None if error
     """
     # Placeholder implementation - you can integrate with Alpha Vantage, Yahoo Finance, etc.
-    print("S&P 500 price fetching not yet implemented")
-    print("You can add integration with Alpha Vantage, Yahoo Finance, or other providers")
+    logger.warning("S&P 500 price fetching not yet implemented")
+    logger.info("You can add integration with Alpha Vantage, Yahoo Finance, or other providers")
     return None
 
 
@@ -148,14 +151,14 @@ def get_nifty_price() -> Optional[float]:
                     if close_prices:
                         return float(close_prices[-1])
         
-        print("Error: Unable to parse Nifty 50 price from Yahoo Finance response")
+        logger.error("Unable to parse Nifty 50 price from Yahoo Finance response")
         return None
         
     except requests.exceptions.RequestException as e:
-        print(f"Error fetching Nifty 50 price: {e}")
+        logger.error("Error fetching Nifty 50 price: %s", e)
         return None
     except (KeyError, json.JSONDecodeError, ValueError) as e:
-        print(f"Error parsing Nifty 50 price response: {e}")
+        logger.error("Error parsing Nifty 50 price response: %s", e)
         return None
 
 
@@ -190,14 +193,14 @@ def get_usd_inr_price() -> Optional[float]:
                     if close_prices:
                         return float(close_prices[-1])
 
-        print("Error: Unable to parse USD/INR rate from Yahoo Finance response")
+        logger.error("Unable to parse USD/INR rate from Yahoo Finance response")
         return None
 
     except requests.exceptions.RequestException as e:
-        print(f"Error fetching USD/INR rate: {e}")
+        logger.error("Error fetching USD/INR rate: %s", e)
         return None
     except (KeyError, json.JSONDecodeError, ValueError) as e:
-        print(f"Error parsing USD/INR response: {e}")
+        logger.error("Error parsing USD/INR response: %s", e)
         return None
 
 def make_gapi_request(api_key: str, asset: str = "XAU") -> Optional[float]:
@@ -229,8 +232,8 @@ def make_gapi_request(api_key: str, asset: str = "XAU") -> Optional[float]:
         result = response.text
         return json.loads(result).get("price")
     except requests.exceptions.RequestException as e:
-        print("Error:", str(e))
+        logger.error("Error making gold price request: %s", e)
         return None
     except json.JSONDecodeError as e:
-        print(f"Error parsing gold price response: {e}")
+        logger.error("Error parsing gold price response: %s", e)
         return None

@@ -1,4 +1,8 @@
+import logging
 import subprocess
+
+
+logger = logging.getLogger(__name__)
 
 
 def show_notification(message, title="Notification", subtitle="", sound_name="default"):
@@ -46,13 +50,16 @@ def show_notification(message, title="Notification", subtitle="", sound_name="de
         if result.returncode == 0:
             return True
         else:
-            print(f"AppleScript error (return code {result.returncode}):")
-            print(f"stdout: {result.stdout}")
-            print(f"stderr: {result.stderr}")
+            logger.error(
+                "AppleScript error (return code %s): stdout=%s stderr=%s",
+                result.returncode,
+                result.stdout.strip(),
+                result.stderr.strip()
+            )
             return False
         
     except (subprocess.TimeoutExpired, subprocess.SubprocessError, FileNotFoundError) as e:
-        print(f"Error displaying notification: {e}")
+        logger.error("Error displaying notification: %s", e)
         return False
 
 
